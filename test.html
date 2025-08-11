@@ -1,0 +1,32 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>AI Email Coach — Quick Test</title>
+</head>
+<body>
+  <h2>AI Email Coach — Quick Test</h2>
+  <label>Paste your reply below:</label><br/>
+  <textarea id="txt" rows="8" cols="60">Hi Nina, ...</textarea><br/>
+  <button id="btn">Send</button>
+  <pre id="out" style="white-space:pre-wrap; border:1px solid #ddd; padding:8px; margin-top:10px;"></pre>
+
+  <script>
+    document.getElementById('btn').onclick = async () => {
+      const txt = document.getElementById('txt').value;
+      document.getElementById('out').textContent = "Contacting API...";
+      try {
+        const res = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: txt })
+        });
+        const j = await res.json();
+        document.getElementById('out').textContent = JSON.stringify(j, null, 2);
+      } catch (e) {
+        document.getElementById('out').textContent = "Error: " + e;
+      }
+    };
+  </script>
+</body>
+</html>
