@@ -21,13 +21,14 @@ window.Script1 = function()
   // Initialize variables
   player.SetVar("AIFeedback", "Contacting AI...");
   player.SetVar("AIScore", 0);
-  player.SetVar("jsDone", false);
   
   var learnerMessage = player.GetVar("LearnerReply") || "";
   
   if (!learnerMessage.trim()) {
     player.SetVar("AIFeedback", "Please enter a response before submitting.");
-    player.SetVar("jsDone", true);
+    setTimeout(function() {
+      player.JumpToNextSlide();
+    }, 2000);
     return;
   }
 
@@ -54,17 +55,25 @@ window.Script1 = function()
           
           player.SetVar("AIScore", score);
           player.SetVar("AIFeedback", reply);
-          player.SetVar("jsDone", true);
+          
+          // Direct slide advance - much simpler!
+          setTimeout(function() {
+            player.JumpToNextSlide();
+          }, 1000); // Wait 1 second so user can see the feedback
           
         } catch (parseError) {
           console.error("Parse error:", parseError);
           player.SetVar("AIFeedback", "Error parsing response: " + parseError.message);
-          player.SetVar("jsDone", true);
+          setTimeout(function() {
+            player.JumpToNextSlide();
+          }, 2000);
         }
       } else {
         console.error("HTTP Error:", xhr.status, xhr.responseText);
         player.SetVar("AIFeedback", "Error " + xhr.status + ": " + xhr.statusText);
-        player.SetVar("jsDone", true);
+        setTimeout(function() {
+          player.JumpToNextSlide();
+        }, 2000);
       }
     }
   };
@@ -72,13 +81,17 @@ window.Script1 = function()
   xhr.onerror = function() {
     console.error("Request failed");
     player.SetVar("AIFeedback", "Network error - please try again");
-    player.SetVar("jsDone", true);
+    setTimeout(function() {
+      player.JumpToNextSlide();
+    }, 2000);
   };
   
   xhr.ontimeout = function() {
     console.error("Request timed out");
     player.SetVar("AIFeedback", "Request timed out - please try again");
-    player.SetVar("jsDone", true);
+    setTimeout(function() {
+      player.JumpToNextSlide();
+    }, 2000);
   };
   
   xhr.timeout = 30000; // 30 second timeout
@@ -88,7 +101,9 @@ window.Script1 = function()
   } catch (error) {
     console.error("Send error:", error);
     player.SetVar("AIFeedback", "Failed to send request: " + error.message);
-    player.SetVar("jsDone", true);
+    setTimeout(function() {
+      player.JumpToNextSlide();
+    }, 2000);
   }
 })();
 }
