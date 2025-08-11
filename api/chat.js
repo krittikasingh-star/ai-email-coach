@@ -1,8 +1,9 @@
 export default async function handler(req, res) {
   // Add CORS headers for all responses
-  res.setHeader('Access-Control-Allow-Origin', '*'); // Allow all origins (or restrict to your domains)
+  res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Accept');
+  res.setHeader('Access-Control-Allow-Credentials', 'false');
 
   if (req.method === 'OPTIONS') {
     // Preflight request
@@ -13,15 +14,11 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  // api/chat.js  (Vercel serverless function)
-export default async function handler(req, res) {
-  if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method not allowed" });
-  }
-
   try {
     const { message } = req.body || {};
-    if (!message) return res.status(400).json({ error: "Missing learner message" });
+    if (!message) {
+      return res.status(400).json({ error: "Missing learner message" });
+    }
 
     const systemPrompt = `
 You are an expert workplace communication coach.
@@ -68,8 +65,7 @@ Feedback:
 
     return res.status(200).json({ reply });
   } catch (err) {
-    console.error(err);
-    return res.status(500).json({ error: "Server error" });
+    console.error("Server error:", err);
+    return res.status(500).json({ error: "Server error", details: err.message });
   }
-}
 }
