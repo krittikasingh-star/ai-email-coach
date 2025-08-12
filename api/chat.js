@@ -25,7 +25,7 @@ Empathy — 3 Key Points:
 
 Clarity — 3 Key Points:
 1. State the Purpose Early: Put the main point or request in the first few lines.
-2. Use Simple Structure: Short paragraphs, bullet points, and headings for quick reading.
+2. Use Simple Structure: Short paragraphs, bullet points, and headings for quick reading. (not relevant here)
 3. Be Action-Oriented: End with explicit, realistic next steps.
 
 SCORING:
@@ -35,7 +35,7 @@ Score Empathy and Clarity each from 1–5, giving the benefit of the doubt for p
 - 3: Partial application of the points.
 - 4: Good application of most points, some improvements possible.
 - 5: Excellent application, all or nearly all points followed.
-Keep in mind that feedback points relevant to longer email in terms of structure will not be penalized as these require short resplies.
+Keep in mind that feedback points relevant to longer email in terms of structure (bullet points, headings, etc.) will not be penalized as these exercises require short replies.
 
 FINAL SCORE (X/5):
 Average the two category scores, rounding to the nearest whole number.
