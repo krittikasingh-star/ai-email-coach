@@ -1,52 +1,42 @@
+// api/chat.js  (Vercel serverless function)
 export default async function handler(req, res) {
-  // Add CORS headers for all responses - Allow Netlify domains
-  const allowedOrigins = [
-    'https://*.netlify.app',
-    'https://*.netlify.com', 
-    'http://localhost:3000',
-    'http://127.0.0.1:3000'
-  ];
-  
-  const origin = req.headers.origin;
-  if (origin && (origin.includes('netlify') || origin.includes('localhost') || origin.includes('127.0.0.1'))) {
-    res.setHeader('Access-Control-Allow-Origin', origin);
-  } else {
-    res.setHeader('Access-Control-Allow-Origin', '*');
-  }
-  
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS, GET');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Accept, Origin, X-Requested-With');
-  res.setHeader('Access-Control-Allow-Credentials', 'false');
-
-  if (req.method === 'OPTIONS') {
-    // Preflight request
-    return res.status(200).end();
-  }
-
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
   try {
     const { message } = req.body || {};
-    if (!message) {
-      return res.status(400).json({ error: "Missing learner message" });
-    }
+    if (!message) return res.status(400).json({ error: "Missing learner message" });
 
     const systemPrompt = `
-You are an expert workplace communication coach.
+You are an expert workplace communication coach. You will be given:
+1. The original email the learner is replying to.
+2. The learner's reply.
 Evaluate the learner's email reply to a colleague's request using this rubric:
-1. Empathy – Acknowledges and understands the colleague's need.
-2. Clarity – Communicates limits and availability clearly.
-3. Next Steps – Offers an alternative or partial help.
 
-Give ONE single score out of 5 (whole numbers only) and 2–3 specific improvement tips.
+SCORING RUBRIC (Score out of 5 – whole numbers only):
+1. Empathy – 1-2: No acknowledgement of the colleague’s needs or context. 3: Minimal or generic acknowledgment. 4: Acknowledges needs and shows understanding, but tone is lacking empathy. 5: Clearly shows understanding, validates the colleague’s situation, and uses warm, professional and empathetic tone.
+2. Clarity – 1-2: Confusing, missing key details, or vague. 3-4: Mostly clear but some ambiguity in limits, availability, or next actions. 5: Clear about what can/cannot be done and suggests a reasonable path forward. 
+
+SCORING GUIDE:
+5 = 4+ in both categories.
+4 = Strong overall (average score above 4) but missing a small element (score 3) in either empathy or clarity.
+3 = Gaps in both categories (average score between 3 & 4)
+2 = Weak in both categories, needs significant improvement.
+1 = Barely meets any criteria.
+0 = Completely off-target.
+
+FEEDBACK RULES:
+- Give exactly 2 feedback points, one tied to each rubric category.
+- Be concrete and specific, pointing to what in the email could be improved and how.
+- Avoid vague advice like "be clearer" — instead, give an example or phrasing suggestion.
+- If the email scored 5/5 in a category, still reinforce what was done well in that category.
+
 Respond in this exact format (no extra explanation):
 Score: X/5
 Feedback:
-- tip 1
-- tip 2
-- tip 3
+Empathy: 
+Clarity:
 `;
 
     // Call OpenAI
@@ -76,9 +66,13 @@ Feedback:
     const data = await openaiRes.json();
     const reply = data?.choices?.[0]?.message?.content ?? "";
 
-    return res.status(200).json({ reply });
+    // Extract numeric score from "Score: X/5"
+    let scoreMatch = reply.match(/Score:\s*(\d)\/5/i);
+    let score = scoreMatch ? parseInt(scoreMatch[1], 10) : 0;
+
+    return res.status(200).json({ reply, AIScore: score });
   } catch (err) {
-    console.error("Server error:", err);
-    return res.status(500).json({ error: "Server error", details: err.message });
+    console.error(err);
+    return res.status(500).json({ error: "Server error" });
   }
 }
