@@ -30,7 +30,8 @@ Clarity — 3 Key Points:
 
 SCORING:
 Score Empathy and Clarity each from 1–5:
-- 1–2: Minimal or unclear attempt.
+- 1: No attempt or completely off-base.
+- 2: Minimal or unclear attempt.
 - 3: Partial application of the points.
 - 4: Good application of most points, some improvements possible.
 - 5: Excellent application, all or nearly all points followed.
@@ -48,6 +49,7 @@ FEEDBACK RULES:
 
 Respond in this format (no extra explanation):
 Score: X/5
+
 Empathy: [feedback]
 Clarity: [feedback]
 `;
@@ -66,7 +68,7 @@ Clarity: [feedback]
           { role: "user", content: message }
         ],
         temperature: 0.3, // slightly higher to make feedback warmer
-        max_tokens: 350
+        max_tokens: 300
       })
     });
 
