@@ -14,40 +14,39 @@ You will be given:
 1. The original email the learner is replying to.
 2. The learner's reply.
 
-Evaluate the learner's reply in the context of the original email using this rubric:
+Evaluate the reply using this rubric, applying the provided learning material:
 
-CATEGORY CRITERIA:
-1. Empathy – 
-   1–2: No acknowledgement of the colleague’s needs or context.  
-   3: Minimal or generic acknowledgment.  
-   4: Acknowledges needs and shows understanding, but tone lacks warmth or empathy.  
-   5: Clearly shows understanding, validates the colleague’s situation, and uses a warm, professional, and empathetic tone.
+LEARNING MATERIAL:
 
-2. Clarity – 
-   1–2: Confusing, missing key details, or vague.  
-   3–4: Mostly clear but with some ambiguity in limits, availability, or next actions.  
-   5: Crystal clear about what can/cannot be done and suggests a reasonable, actionable path forward.
+Empathy — 3 Key Points:
+1. Start with Acknowledgement: Recognise the reader’s perspective or feelings before getting to the main point.
+2. Mind Your Tone: Use collaborative, respectful language; avoid giving commands.
+3. End on a Positive Note: Close with appreciation and an offer of help.
 
-SCORING METHOD:
-- First, assign each category a score from 1–5.  
-- Then calculate the average of the two scores.  
-- Round the average to the nearest whole number to determine the final Score (X/5).  
+Clarity — 3 Key Points:
+1. State the Purpose Early: Put the main point or request in the first few lines.
+2. Use Simple Structure: Short paragraphs, bullet points, and headings for quick reading.
+3. Be Action-Oriented: End with explicit, realistic next steps.
 
-SCORING GUIDE:
-5 = Both categories score 4 or 5, with an average of 4.5 or higher.  
-4 = Strong overall but one category scores 3.  
-3 = Both categories have notable gaps (average 3.0–3.4).  
-2 = Weak in both categories (average 2.0–2.9).  
-1 = Barely meets any criteria.  
-0 = Completely off-target.
+SCORING:
+Score Empathy and Clarity each from 1–5, giving the benefit of the doubt for partial effort:
+- 1–2: Minimal or unclear attempt.
+- 3: Partial application of the points.
+- 4: Good application, minor improvements possible.
+- 5: Excellent application, all or nearly all points followed.
+
+FINAL SCORE (X/5):
+Average the two category scores, rounding to the nearest whole number.
 
 FEEDBACK RULES:
-- Give exactly 2 feedback points, one labeled "Empathy:" and one labeled "Clarity:".
-- Be concrete and specific, pointing to what in the email could be improved and how.
-- Avoid vague advice like "be clearer" — instead, give an example or phrasing suggestion.
-- If the category score is 5, reinforce what was done well.
+- Give exactly 2 feedback sections, labeled "Empathy:" and "Clarity:".
+- In each section:
+  - Reference the specific learning material points followed or missed.
+  - Quote or paraphrase the learner’s wording where relevant.
+  - Give one positive observation and one concrete improvement.
+- Be encouraging and specific, avoiding generic advice.
 
-Respond in this exact format (no extra explanation):
+Respond in this format (no extra explanation):
 Score: X/5
 Empathy: [feedback]
 Clarity: [feedback]
@@ -66,29 +65,26 @@ Clarity: [feedback]
           { role: "system", content: systemPrompt },
           { role: "user", content: message }
         ],
-        temperature: 0.2,
-        max_tokens: 300
+        temperature: 0.3, // slightly higher to make feedback warmer
+        max_tokens: 350
       })
     });
 
     if (!openaiRes.ok) {
-      const text = await await openaiRes.text();
+      const text = await openaiRes.text();
       console.error("OpenAI error:", openaiRes.status, text);
       return res.status(502).json({ error: "Error from OpenAI", details: text });
     }
 
     const data = await openaiRes.json();
-    const rawReply = data?.choices?.[0]?.message?.content ?? "";
+    const reply = data?.choices?.[0]?.message?.content ?? "";
 
     // Extract numeric score from "Score: X/5"
-    let scoreMatch = rawReply.match(/Score:\s*(\d)\/5/i);
+    let scoreMatch = reply.match(/Score:\s*(\d)\/5/i);
     let score = scoreMatch ? parseInt(scoreMatch[1], 10) : 0;
 
-    // Remove the score line from feedback text
-    let feedbackOnly = rawReply.replace(/Score:\s*\d\/5\s*/i, "").trim();
-
-    // Return clean feedback and separate score
-    return res.status(200).json({ reply: feedbackOnly, AIScore: score });
+    // Return full feedback with score + numeric score for tracking
+    return res.status(200).json({ reply, AIScore: score });
   } catch (err) {
     console.error(err);
     return res.status(500).json({ error: "Server error" });
