@@ -9,34 +9,48 @@ export default async function handler(req, res) {
     if (!message) return res.status(400).json({ error: "Missing learner message" });
 
     const systemPrompt = `
-You are an expert workplace communication coach. You will be given:
+You are an expert workplace communication coach.
+You will be given:
 1. The original email the learner is replying to.
 2. The learner's reply.
-Evaluate the learner's email reply to a colleague's request using this rubric:
 
-SCORING RUBRIC (Score out of 5 – whole numbers only):
-1. Empathy – 1-2: No acknowledgement of the colleague’s needs or context. 3: Minimal or generic acknowledgment. 4: Acknowledges needs and shows understanding, but tone is lacking empathy. 5: Clearly shows understanding, validates the colleague’s situation, and uses warm, professional and empathetic tone.
-2. Clarity – 1-2: Confusing, missing key details, or vague. 3-4: Mostly clear but some ambiguity in limits, availability, or next actions. 5: Clear about what can/cannot be done and suggests a reasonable path forward. 
+Evaluate the learner's reply in the context of the original email using this rubric:
+
+CATEGORY CRITERIA:
+1. Empathy – 
+   1–2: No acknowledgement of the colleague’s needs or context.  
+   3: Minimal or generic acknowledgment.  
+   4: Acknowledges needs and shows understanding, but tone lacks warmth or empathy.  
+   5: Clearly shows understanding, validates the colleague’s situation, and uses a warm, professional, and empathetic tone.
+
+2. Clarity – 
+   1–2: Confusing, missing key details, or vague.  
+   3–4: Mostly clear but with some ambiguity in limits, availability, or next actions.  
+   5: Crystal clear about what can/cannot be done and suggests a reasonable, actionable path forward.
+
+SCORING METHOD:
+- First, assign each category a score from 1–5.  
+- Then calculate the average of the two scores.  
+- Round the average to the nearest whole number to determine the final Score (X/5).  
 
 SCORING GUIDE:
-5 = 4+ in both categories.
-4 = Strong overall (average score above 4) but missing a small element (score 3) in either empathy or clarity.
-3 = Gaps in both categories (average score between 3 & 4)
-2 = Weak in both categories, needs significant improvement.
-1 = Barely meets any criteria.
+5 = Both categories score 4 or 5, with an average of 4.5 or higher.  
+4 = Strong overall but one category scores 3.  
+3 = Both categories have notable gaps (average 3.0–3.4).  
+2 = Weak in both categories (average 2.0–2.9).  
+1 = Barely meets any criteria.  
 0 = Completely off-target.
 
 FEEDBACK RULES:
-- Give exactly 2 feedback points, one tied to each rubric category.
+- Give exactly 2 feedback points, one labeled "Empathy:" and one labeled "Clarity:".
 - Be concrete and specific, pointing to what in the email could be improved and how.
 - Avoid vague advice like "be clearer" — instead, give an example or phrasing suggestion.
-- If the email scored 5/5 in a category, still reinforce what was done well in that category.
+- If the category score is 5, reinforce what was done well.
 
 Respond in this exact format (no extra explanation):
 Score: X/5
-Feedback:
-Empathy: 
-Clarity:
+Empathy: [feedback]
+Clarity: [feedback]
 `;
 
     // Call OpenAI
@@ -58,19 +72,23 @@ Clarity:
     });
 
     if (!openaiRes.ok) {
-      const text = await openaiRes.text();
+      const text = await await openaiRes.text();
       console.error("OpenAI error:", openaiRes.status, text);
       return res.status(502).json({ error: "Error from OpenAI", details: text });
     }
 
     const data = await openaiRes.json();
-    const reply = data?.choices?.[0]?.message?.content ?? "";
+    const rawReply = data?.choices?.[0]?.message?.content ?? "";
 
     // Extract numeric score from "Score: X/5"
-    let scoreMatch = reply.match(/Score:\s*(\d)\/5/i);
+    let scoreMatch = rawReply.match(/Score:\s*(\d)\/5/i);
     let score = scoreMatch ? parseInt(scoreMatch[1], 10) : 0;
 
-    return res.status(200).json({ reply, AIScore: score });
+    // Remove the score line from feedback text
+    let feedbackOnly = rawReply.replace(/Score:\s*\d\/5\s*/i, "").trim();
+
+    // Return clean feedback and separate score
+    return res.status(200).json({ reply: feedbackOnly, AIScore: score });
   } catch (err) {
     console.error(err);
     return res.status(500).json({ error: "Server error" });
