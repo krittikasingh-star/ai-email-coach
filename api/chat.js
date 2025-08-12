@@ -29,12 +29,13 @@ Clarity — 3 Key Points:
 3. Be Action-Oriented: End with explicit, realistic next steps.
 
 SCORING:
-Score Empathy and Clarity each from 1–5:
+Score Empathy and Clarity each from 1–5, giving the benefit of the doubt for partial effort:
 - 1: No attempt or completely off-base.
 - 2: Minimal or unclear attempt.
 - 3: Partial application of the points.
 - 4: Good application of most points, some improvements possible.
 - 5: Excellent application, all or nearly all points followed.
+Keep in mind that feedback points relevant to longer email in terms of structure will not be penalized as these require short resplies.
 
 FINAL SCORE (X/5):
 Average the two category scores, rounding to the nearest whole number.
@@ -46,6 +47,7 @@ FEEDBACK RULES:
   - Quote or paraphrase the learner’s wording where relevant.
   - Give one positive observation (when relevant) and one concrete improvement.
 - Be encouraging and specific, avoiding generic advice.
+- Dont need to give feedback on every point, just the most relevant ones.
 
 Respond in this format (no extra explanation):
 Score: X/5
