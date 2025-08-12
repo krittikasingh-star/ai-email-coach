@@ -18,24 +18,33 @@ window.Script1 = function()
   (function () {
   var player = GetPlayer();
   
+  // Add the extracted Jump to Slide function from Articulate community
+  function jumpToSlide(t) {
+    var e = arguments.length > 1 && void 0 !== arguments[1] ? arguments[1] : "_frame";
+    var n = DS.presentation.getFlatSlides().find(function(e) {
+      return e.id === t;
+    });
+    return null != n ? DS.windowManager.requestSlideForReview(n, e).then(function() {
+      return {
+        target: n.absoluteId
+      };
+    }) : Promise.reject("Slide with id '".concat(t, "' not found"));
+  }
+  
   // Initialize variables
   player.SetVar("AIFeedback", "Contacting AI...");
   player.SetVar("AIScore", 0);
-  // No need for jsDone variable anymore!
   
   var learnerMessage = player.GetVar("LearnerReply") || "";
   
   if (!learnerMessage.trim()) {
     player.SetVar("AIFeedback", "Please enter a response before submitting.");
-    player.JumpToSlide("1.3");
+    jumpToSlide("5aRiauksztt");
     return;
   }
 
   // Use relative path since we're on the same domain  
   var apiUrl = "/api/chat";
-  
-  console.log("Current domain:", window.location.host);
-  console.log("Full URL will be:", window.location.origin + apiUrl);
   
   var xhr = new XMLHttpRequest();
   xhr.open("POST", apiUrl, true);
@@ -55,18 +64,18 @@ window.Script1 = function()
           player.SetVar("AIScore", score);
           player.SetVar("AIFeedback", reply);
           
-          // Jump to feedback slide immediately since feedback shows there
-          player.JumpToSlide("1.3");
+          // Jump to feedback slide
+          jumpToSlide("5aRiauksztt");
           
         } catch (parseError) {
           console.error("Parse error:", parseError);
           player.SetVar("AIFeedback", "Error parsing response: " + parseError.message);
-          player.JumpToSlide("1.3");
+          jumpToSlide("5aRiauksztt");
         }
       } else {
         console.error("HTTP Error:", xhr.status, xhr.responseText);
         player.SetVar("AIFeedback", "Error " + xhr.status + ": " + xhr.statusText);
-        player.JumpToSlide("1.3");
+        jumpToSlide("5aRiauksztt");
       }
     }
   };
@@ -74,13 +83,13 @@ window.Script1 = function()
   xhr.onerror = function() {
     console.error("Request failed");
     player.SetVar("AIFeedback", "Network error - please try again");
-    player.JumpToSlide("1.3");
+    jumpToSlide("5aRiauksztt");
   };
   
   xhr.ontimeout = function() {
     console.error("Request timed out");
     player.SetVar("AIFeedback", "Request timed out - please try again");
-    player.JumpToSlide("1.3");
+    jumpToSlide("5aRiauksztt");
   };
   
   xhr.timeout = 30000; // 30 second timeout
@@ -90,7 +99,7 @@ window.Script1 = function()
   } catch (error) {
     console.error("Send error:", error);
     player.SetVar("AIFeedback", "Failed to send request: " + error.message);
-    player.JumpToSlide("1.3");
+    jumpToSlide("5aRiauksztt");
   }
 })();
 }
